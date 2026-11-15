@@ -1,0 +1,22 @@
+name: ABH AgentPhone Local Webhook Regression
+on:
+  pull_request:
+    paths:
+      - 'files/agentphone-bridge/**'
+      - '.github/workflows/abh-agentphone-local-test.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  webhook:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Syntax check
+        run: python -m py_compile files/agentphone-bridge/agentphone_bridge.py files/agentphone-bridge/test_event_ordering.py
+      - name: Test event sequencing and webhook over loopback
+        run: python -m unittest discover -s files/agentphone-bridge -p test_event_ordering.py -v
