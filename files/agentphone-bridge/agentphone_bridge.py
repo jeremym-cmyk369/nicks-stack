@@ -108,7 +108,9 @@ def sanitize(obj: Any) -> Any:
 
 
 def log_event(event: str, **fields: Any) -> None:
-    BRIDGE_DIR.mkdir(parents=True, exist_ok=True)
+    # Honor the configured log destination; tests and unprivileged runtimes
+    # must not attempt to create the default /root directory.
+    EVENTS_LOG.parent.mkdir(parents=True, exist_ok=True)
     record = {"ts": utc_now(), "event": event, **fields}
     safe = sanitize(record)
     line = json.dumps(safe, ensure_ascii=False, sort_keys=True)
